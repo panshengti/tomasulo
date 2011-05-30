@@ -15,6 +15,11 @@ public class Tomasulo {
 	LSQueue lsqueue;
 	ArrayList<Float> stations;
 	ArrayList<InstructionItem> instList;
+	
+	InstructionItem nextToExec = null;
+	ArrayList<InstructionItem> execList;
+	ArrayList<InstructionItem> wbList;
+	
 	static int clock;
 	int pc;
 	
@@ -26,6 +31,8 @@ public class Tomasulo {
 		mul = new Multiplier();
 		stations = new ArrayList<Float>();
 		lsqueue = new LSQueue();
+		execList = new ArrayList<InstructionItem>();	
+		wbList = new ArrayList<InstructionItem>();
 		clock = 0;
 		pc = 0;
 		
@@ -71,25 +78,35 @@ public class Tomasulo {
 			issue();
 		}
 			
-		//execute();
-		//writeback();
+		execute();
+		writeback();
+		
+		if (nextToExec != null){
+			execList.add(nextToExec);
+		}
 	}
 	
 	public void issue(){
 		
 		// decoder
 		InstructionItem inst = instList.get(pc);
+		nextToExec = null;
 		String s[] = inst.name.split("\\s+");
 		String op = s[0];
 		int src1 = 0, src2 = 0, des = 0;
-		if (op.equals("ADDD")){
+		if (op.equals("ADDD") || op.equals("SUBD")){
 			
+			inst.op = op.equals("ADDD")? Global.ADDD: Global.SUBD;
 			des = Global.getInt(s[1]);
 			src1 = Global.getInt(s[2]);
 			src2 = Global.getInt(s[3]);
+			inst.src1 = src1;
+			inst.src2 = src2;
+			inst.des = des;
 			inst.time = 2;
 			
 			int station = schedule(Global.A);
+			inst.result = station;
 			
 			register.setStation(des, station);
 			rs.setBusy(Global.getID(station));
@@ -109,13 +126,23 @@ public class Tomasulo {
 			
 			pc ++;
 			
-		} else if (op.equals("SUBD")){
+		} else if (op.equals("MULD") || op.equals("DIVD")){
+			inst.op = op.equals("MULD")? Global.MULD: Global.DIVD;
+			inst.time = op.equals("MULD")? 10: 40;
 			des = Global.getInt(s[1]);
 			src1 = Global.getInt(s[2]);
 			src2 = Global.getInt(s[3]);
-			inst.time = 2;
+			inst.src1 = src1;
+			inst.src2 = src2;
+			inst.des = des;
 			
-			int station = schedule(Global.A);
+			int station = schedule(Global.M);
+			
+			if (station == -1){
+				return;
+			}		
+			inst.result = station;
+			
 			register.setStation(des, station);
 			rs.setBusy(Global.getID(station));
 			
@@ -133,66 +160,14 @@ public class Tomasulo {
 			}
 			
 			pc++;
-		} else if (op.equals("MULD")){
-			des = Global.getInt(s[1]);
-			src1 = Global.getInt(s[2]);
-			src2 = Global.getInt(s[3]);
-			inst.time = 10;
-			
-			int station = schedule(Global.M);
-			if (station == -1){
-				return;
-			}
-			register.setStation(des, station);
-			rs.setBusy(Global.getID(station));
-			
-			int src1Station = register.getStation(src1);
-			int src2Station = register.getStation(src2);
-			if (src1Station == -1) {
-				rs.setData1(src1, register.read(src1));
-			} else {
-				rs.setStation1(src1, src1Station);
-			}
-			if (src2Station == -1) {
-				rs.setData1(src2, register.read(src2));
-			} else {
-				rs.setStation1(src2, src2Station);
-			}
-			
-			pc++;
-			
-		} else if (op.equals("DIVD")){
-			des = Global.getInt(s[1]);
-			src1 = Global.getInt(s[2]);
-			src2 = Global.getInt(s[3]);
-			inst.time = 40;
-			
-			int station = schedule(Global.M);
-			if (station == -1){
-				return;
-			}
-			register.setStation(des, station);
-			rs.setBusy(Global.getID(station));
-			
-			int src1Station = register.getStation(src1);
-			int src2Station = register.getStation(src2);
-			if (src1Station == -1) {
-				rs.setData1(src1, register.read(src1));
-			} else {
-				rs.setStation1(src1, src1Station);
-			}
-			if (src2Station == -1) {
-				rs.setData1(src2, register.read(src2));
-			} else {
-				rs.setStation1(src2, src2Station);
-			}
-			
-			pc ++;
-			
+				
 		} else if (op.equals("LD")) {
+			inst.op = Global.LD;
 			des = Global.getInt(s[1]);
 			src1 = Integer.parseInt(s[2]);
 			inst.time = 2;
+			inst.src1 = src1;
+			inst.des = des;
 			
 			int station = schedule(Global.L);
 			
@@ -205,6 +180,8 @@ public class Tomasulo {
 				}
 			}
 			
+			inst.result = station;
+			
 			register.setStation(des, station);
 			
 			lsqueue.setBusy(Global.getID(station));
@@ -212,9 +189,12 @@ public class Tomasulo {
 			pc ++;
 			
 		} else if (op.equals("ST")) {
+			inst.op = Global.ST;
 			src1 = Global.getInt(s[1]);
 			des = Integer.parseInt(s[2]);		
 			inst.time = 2;
+			inst.src1 = src1;
+			inst.des = des;
 			
 			
 			int station = schedule(Global.S);
@@ -226,6 +206,8 @@ public class Tomasulo {
 					}
 				}
 			}
+			
+			inst.result = station;
 			
 			// waiting src's station if any
 			if (register.getStation(src1) != -1){
@@ -240,6 +222,8 @@ public class Tomasulo {
 			System.out.println("Error Instruction!");
 		}
 		
+		nextToExec = inst;
+		
 		inst.issue = clock;
 		System.out.println(clock +": " +inst.name);
 		
@@ -247,7 +231,33 @@ public class Tomasulo {
 	}
 	
 	public void execute(){
-		
+		for (InstructionItem inst: execList){
+			switch (inst.op) {
+			case Global.ADDD:
+				if (register.getStation(inst.src1) == -1 && register.getStation(inst.src2) == -1){
+					inst.time--;
+					if (inst.time == 0){
+						inst.result = register.read(inst.src1) + register.read(inst.src2);
+						wbList.add(inst);
+					}
+				} 
+			case Global.SUBD:
+			case Global.MULD:
+			case Global.DIVD:
+				if (register.getStation(inst.src1) == -1 && register.getStation(inst.src2) == -1){
+					inst.time--;
+				} 
+				
+				
+				break;
+
+			default:
+				break;
+			}
+			if (inst.time == 0){
+				
+			}
+		}
 	}
 	
 	public void writeback(){
