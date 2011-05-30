@@ -7,8 +7,50 @@ public class ReservationStation {
 		rs = new ReservationStationItem[Global.RSNum];
 	}
 	
+
+	public boolean isBusy(int id){
+		return (rs[id].ctrl == Global.BUSY)? true : false;
+	}
 	
+	public void setStation1(int id, int station){
+		rs[id].station1 = station;
+	}
 	
+	public void setStation2(int id, int station){
+		rs[id].station2 = station;
+	}
+	
+	public void setData1(int id, int data){
+		rs[id].data1 = data;
+	}
+	
+	public void setData2(int id, int data){
+		rs[id].data2 = data;
+	}
+	
+	public void setBusy(int id){
+		rs[id].ctrl = Global.BUSY;
+	}
+	
+	public void setIdle(int id){
+		rs[id].ctrl = Global.IDLE;
+	}
+	
+	public int getStation1(int id){
+		return rs[id].station1;
+	}
+	
+	public int getStation2(int id){
+		return rs[id].station2;
+	}
+	
+	public float getData1(int id){
+		return rs[id].data1;
+	}
+	
+	public float getData2(int id){
+		return rs[id].data2;
+	}
 }
 
 // 保存站的每一项
@@ -24,9 +66,6 @@ class ReservationStationItem {
 		data1 = 0f;
 		station2 = 0;
 		data2 = 0f;
-		ctrl = Global.WAIT;
+		ctrl = Global.IDLE;
 	}
-	
-	
-	
 }

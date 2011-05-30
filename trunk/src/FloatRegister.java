@@ -26,6 +26,14 @@ public class FloatRegister {
 	public void setIdle(int id){
 		register[id].setIdle();
 	}
+	
+	public void setStation(int id, int station){
+		register[id].setStation(station);
+	}
+	
+	public int getStation(int id){
+		return register[id].getStation();
+	}
 }
 
 class RegisterItem {
@@ -57,5 +65,13 @@ class RegisterItem {
 	
 	public void write(float data){
 		this.data = data;
+	}
+	
+	public void setStation(int s){
+		station = s;
+	}
+	
+	public int getStation(){
+		return station;
 	}
 }
