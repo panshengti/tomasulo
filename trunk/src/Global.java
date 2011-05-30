@@ -39,13 +39,20 @@ public class Global {
 	public static final int S3 = 13;
 	
 	
+	public static final int A1 = 14;
+	public static final int A2 = 15;
+	public static final int A3 = 16;
+	public static final int M1 = 17;
+	public static final int M2 = 18;
+	
+	
 	// 保留站号
 	public static final int RSNum = 5;
-	public static final int A1 = 0;
-	public static final int A2 = 1;
-	public static final int A3 = 2;
-	public static final int M1 = 3;
-	public static final int M2 = 4;
+	public static final int _A1 = 0;
+	public static final int _A2 = 1;
+	public static final int _A3 = 2;
+	public static final int _M1 = 3;
+	public static final int _M2 = 4;
 	
 	// 保留站控制号
 	public static final int WAIT = 0;

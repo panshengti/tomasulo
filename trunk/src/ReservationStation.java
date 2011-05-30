@@ -7,6 +7,13 @@ public class ReservationStation {
 		rs = new ReservationStationItem[Global.RSNum];
 	}
 	
+	public void setResult(int id, float f){
+		rs[id].result = f;
+	}
+	
+	public float getResult(int id){
+		return rs[id].result;
+	}
 
 	public boolean isBusy(int id){
 		return (rs[id].ctrl == Global.BUSY)? true : false;
@@ -60,6 +67,7 @@ class ReservationStationItem {
 	int station2;
 	float data2;
 	int ctrl;
+	float result;
 	
 	public ReservationStationItem(){
 		station1 = 0;
@@ -67,5 +75,6 @@ class ReservationStationItem {
 		station2 = 0;
 		data2 = 0f;
 		ctrl = Global.IDLE;
+		result = 0f;
 	}
 }
