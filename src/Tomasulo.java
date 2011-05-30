@@ -13,9 +13,9 @@ public class Tomasulo {
 	Adder adder;
 	Multiplier mul;
 	LSQueue lsqueue;
-	ArrayList<Object> stations;
+	ArrayList<Float> stations;
 	ArrayList<InstructionItem> instList;
-	int clock;
+	static int clock;
 	int pc;
 	
 	public Tomasulo(){
@@ -24,20 +24,20 @@ public class Tomasulo {
 		mem = new Memory();
 		adder = new Adder();
 		mul = new Multiplier();
-		stations = new ArrayList<Object>();
+		stations = new ArrayList<Float>();
 		lsqueue = new LSQueue();
 		clock = 0;
 		pc = 0;
 		
 		int i=0;
 		for (i=0; i<Global.RegisterNum; i++){
-			stations.add(register.register[i]);
+			stations.add(0f);
 		}
-		for (i=0; i<Global.RegisterNum + Global.LSQNum; i++){
-			stations.add(lsqueue.queue[i]);
+		for (i=0; i<Global.LSQNum; i++){
+			stations.add(0f);
 		}
-		for ( ; i<Global.RegisterNum + Global.LSQNum + Global.RSNum; i++){
-			stations.add(rs.rs[i]);
+		for (i=0; i< Global.RSNum; i++){
+			stations.add(0f);
 		}
 		
 		instList = new ArrayList<InstructionItem>();
@@ -49,6 +49,7 @@ public class Tomasulo {
 			while (null != (str = br.readLine())){
 				InstructionItem ii = new InstructionItem(str);
 				instList.add(ii);
+//				System.out.println(ii.name);
 			}
 		
 		} catch (FileNotFoundException e) {
@@ -66,12 +67,12 @@ public class Tomasulo {
 	
 	public void step(){
 		clock ++;
-		if (clock < instList.size()){
+		if (clock <= 4){
 			issue();
 		}
 			
-		execute();
-		writeback();
+		//execute();
+		//writeback();
 	}
 	
 	public void issue(){
@@ -82,13 +83,29 @@ public class Tomasulo {
 		String op = s[0];
 		int src1 = 0, src2 = 0, des = 0;
 		if (op.equals("ADDD")){
+			
 			des = Global.getInt(s[1]);
 			src1 = Global.getInt(s[2]);
 			src2 = Global.getInt(s[3]);
 			inst.time = 2;
 			
 			int station = schedule(Global.A);
+			
 			register.setStation(des, station);
+			rs.setBusy(Global.getID(station));
+			
+			int src1Station = register.getStation(src1);
+			int src2Station = register.getStation(src2);
+			if (src1Station == -1) {
+				rs.setData1(src1, register.read(src1));
+			} else {
+				rs.setStation1(src1, src1Station);
+			}
+			if (src2Station == -1) {
+				rs.setData1(src2, register.read(src2));
+			} else {
+				rs.setStation1(src2, src2Station);
+			}
 			
 			pc ++;
 			
@@ -100,6 +117,20 @@ public class Tomasulo {
 			
 			int station = schedule(Global.A);
 			register.setStation(des, station);
+			rs.setBusy(Global.getID(station));
+			
+			int src1Station = register.getStation(src1);
+			int src2Station = register.getStation(src2);
+			if (src1Station == -1) {
+				rs.setData1(src1, register.read(src1));
+			} else {
+				rs.setStation1(src1, src1Station);
+			}
+			if (src2Station == -1) {
+				rs.setData1(src2, register.read(src2));
+			} else {
+				rs.setStation1(src2, src2Station);
+			}
 			
 			pc++;
 		} else if (op.equals("MULD")){
@@ -113,6 +144,21 @@ public class Tomasulo {
 				return;
 			}
 			register.setStation(des, station);
+			rs.setBusy(Global.getID(station));
+			
+			int src1Station = register.getStation(src1);
+			int src2Station = register.getStation(src2);
+			if (src1Station == -1) {
+				rs.setData1(src1, register.read(src1));
+			} else {
+				rs.setStation1(src1, src1Station);
+			}
+			if (src2Station == -1) {
+				rs.setData1(src2, register.read(src2));
+			} else {
+				rs.setStation1(src2, src2Station);
+			}
+			
 			pc++;
 			
 		} else if (op.equals("DIVD")){
@@ -126,6 +172,21 @@ public class Tomasulo {
 				return;
 			}
 			register.setStation(des, station);
+			rs.setBusy(Global.getID(station));
+			
+			int src1Station = register.getStation(src1);
+			int src2Station = register.getStation(src2);
+			if (src1Station == -1) {
+				rs.setData1(src1, register.read(src1));
+			} else {
+				rs.setStation1(src1, src1Station);
+			}
+			if (src2Station == -1) {
+				rs.setData1(src2, register.read(src2));
+			} else {
+				rs.setStation1(src2, src2Station);
+			}
+			
 			pc ++;
 			
 		} else if (op.equals("LD")) {
@@ -136,7 +197,7 @@ public class Tomasulo {
 			int station = schedule(Global.L);
 			
 			// load_addr 是已有mem操作的 addr
-			for (int j=Global.S1; j<=Global.S3; j++){
+			for (int j=Global._S1; j<=Global._S3; j++){
 				if ( lsqueue.isBusy(j)){
 					if (src1 == lsqueue.getAddr(j)){
 						return;
@@ -146,6 +207,8 @@ public class Tomasulo {
 			
 			register.setStation(des, station);
 			
+			lsqueue.setBusy(Global.getID(station));
+			lsqueue.setAddr(Global.getID(station), des);
 			pc ++;
 			
 		} else if (op.equals("ST")) {
@@ -153,9 +216,10 @@ public class Tomasulo {
 			des = Integer.parseInt(s[2]);		
 			inst.time = 2;
 			
+			
 			int station = schedule(Global.S);
 			
-			for (int j=Global.L1; j<=Global.L3; j++){
+			for (int j=Global._L1; j<=Global._L3; j++){
 				if ( lsqueue.isBusy(j)){
 					if (src1 == lsqueue.getAddr(j)){
 						return;
@@ -167,7 +231,8 @@ public class Tomasulo {
 			if (register.getStation(src1) != -1){
 				lsqueue.setStation(des, register.getStation(src1));
 			}
-			
+			lsqueue.setBusy(Global.getID(station));
+			lsqueue.setAddr(Global.getID(station), des);
 			pc ++;
 			
 			
@@ -176,7 +241,7 @@ public class Tomasulo {
 		}
 		
 		inst.issue = clock;
-		
+		System.out.println(clock +": " +inst.name);
 		
 		
 	}
@@ -193,39 +258,46 @@ public class Tomasulo {
 		int i = 0;
 		switch (type){
 		case Global.L:
-			for (i=Global.L1; i<=Global.L3; i++){
+			for (i=Global._L1; i<=Global._L3; i++){
 				if ( !lsqueue.isBusy(i)){
-					return i;
+					return i+8;
 				}
 			}
 			break;
 			
 		case Global.S:
-			for (i=Global.S1; i<=Global.S3; i++){
+			for (i=Global._S1; i<=Global._S3; i++){
 				if ( !lsqueue.isBusy(i)){
-					return i;
+					return i+8;
 				}
 			}
 			break;
 			
 		case Global.A:
-			for (i=Global.A1; i<=Global.A3; i++){
+			for (i=Global._A1; i<=Global._A3; i++){
 				if ( !rs.isBusy(i)){
-					return i;
+					return i+14;
 				}
 			}
 			break;
 			
 		case Global.M:
-			for (i=Global.M1; i<=Global.M2; i++){
+			for (i=Global._M1; i<=Global._M2; i++){
 				if ( !rs.isBusy(i)){
-					return i;
+					return i+14;
 				}
 			}
 			break;
 		}
 		
 		return -1;	
+	}
+	
+	public static void main(String []args){
+		Tomasulo t = new Tomasulo();
+		while (clock < 100){
+			t.step();
+		}
 	}
 	
 

@@ -5,6 +5,9 @@ public class ReservationStation {
 	
 	public ReservationStation(){
 		rs = new ReservationStationItem[Global.RSNum];
+		for (int i = 0; i < Global.RSNum; i++){
+			rs[i] = new ReservationStationItem ();
+		}
 	}
 	
 	public void setResult(int id, float f){
@@ -27,11 +30,11 @@ public class ReservationStation {
 		rs[id].station2 = station;
 	}
 	
-	public void setData1(int id, int data){
+	public void setData1(int id, float data){
 		rs[id].data1 = data;
 	}
 	
-	public void setData2(int id, int data){
+	public void setData2(int id, float data){
 		rs[id].data2 = data;
 	}
 	
