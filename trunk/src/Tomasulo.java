@@ -14,11 +14,12 @@ public class Tomasulo {
 	Multiplier mul;
 	LSQueue lsqueue;
 	ArrayList<Float> stations;
-	ArrayList<InstructionItem> instList;
+	static ArrayList<InstructionItem> instList;
 	
 	InstructionItem nextToExec = null;
 	ArrayList<InstructionItem> execList;
 	ArrayList<InstructionItem> wbList;
+	ArrayList<InstructionItem> nextWbList;
 	
 	static int clock;
 	int pc;
@@ -33,6 +34,7 @@ public class Tomasulo {
 		lsqueue = new LSQueue();
 		execList = new ArrayList<InstructionItem>();	
 		wbList = new ArrayList<InstructionItem>();
+		nextWbList = new ArrayList<InstructionItem>();
 		clock = 0;
 		pc = 0;
 		
@@ -68,31 +70,57 @@ public class Tomasulo {
 		}
 	}
 	
-	public void clockInc(){
-		
+	public void printAll(){
+		System.out.println("-----------clock = "+clock+"--------------");
+		System.out.println("F1: "+ register.read(1));
+		System.out.println("F2: "+ register.read(2));
+		System.out.println("F3: "+ register.read(3));
+		for (int i =0 ; i < instList.size();i ++){
+			System.out.println(instList.get(i).name);
+			System.out.println("issue :"+instList.get(i).issue);
+			System.out.println("exec :"+instList.get(i).execComp);
+			System.out.println("wb :"+instList.get(i).writeback);
+		}
+		for (int i=0; i<rs.rs.length; i++){
+			System.out.println("rs :"+i);
+			System.out.println("station1 : "+rs.getStation1(i));
+			System.out.println("station2 : "+rs.getStation2(i));
+		}
+		for (int i=0; i<register.register.length; i++){
+			System.out.println("REG :"+i);
+			System.out.println("REG: station : "+register.getStation(i));
+		}
 	}
 	
 	public void step(){
-		clock ++;
-		if (clock <= 4){
+			clock ++;
 			issue();
-		}
-			
-		execute();
-		writeback();
-		
+			System.out.println("execlist.size():"+execList.size());
+			execute();
+			writeback();
 		if (nextToExec != null){
 			execList.add(nextToExec);
+		} 
+		if (nextWbList.size() != 0){
+			for (InstructionItem inst: nextWbList){
+				wbList.add(inst);
+			}
+			nextWbList.clear();
 		}
 	}
 	
 	public void issue(){
 		
+		if (pc >= instList.size()) {
+			nextToExec = null;
+			return;
+		}
 		// decoder
+		System.out.println("pc = "+pc);
 		InstructionItem inst = instList.get(pc);
 		nextToExec = null;
 		String s[] = inst.name.split("\\s+");
-		String op = s[0];
+		String op =s[0];
 		int src1 = 0, src2 = 0, des = 0;
 		if (op.equals("ADDD") || op.equals("SUBD")){
 			
@@ -106,7 +134,7 @@ public class Tomasulo {
 			inst.time = 2;
 			
 			int station = schedule(Global.A);
-			inst.result = station;
+			inst.station = station;
 			
 			register.setStation(des, station);
 			rs.setBusy(Global.getID(station));
@@ -141,7 +169,7 @@ public class Tomasulo {
 			if (station == -1){
 				return;
 			}		
-			inst.result = station;
+			inst.station = station;
 			
 			register.setStation(des, station);
 			rs.setBusy(Global.getID(station));
@@ -180,7 +208,7 @@ public class Tomasulo {
 				}
 			}
 			
-			inst.result = station;
+			inst.station = station;
 			
 			register.setStation(des, station);
 			
@@ -207,7 +235,7 @@ public class Tomasulo {
 				}
 			}
 			
-			inst.result = station;
+			inst.station = station;
 			
 			// waiting src's station if any
 			if (register.getStation(src1) != -1){
@@ -225,95 +253,228 @@ public class Tomasulo {
 		nextToExec = inst;
 		
 		inst.issue = clock;
-		System.out.println(clock +": " +inst.name);
 		
+		//printAll();
 		
 	}
 	
-	public void execute(){
-		for (InstructionItem inst: execList){
+	public void execute(){ 
+		if (execList.size() == 0) return;
+		ArrayList<Integer> delList = new ArrayList<Integer>();
+		for (int i = 0; i < execList.size(); i++){
+			InstructionItem inst = execList.get(i);
 			switch (inst.op) {
 			case Global.ADDD:
-				if (register.getStation(inst.src1) == -1 && register.getStation(inst.src2) == -1){
-					inst.time--;
-					if (inst.time == 0){
-						float result = register.read(inst.src1) + register.read(inst.src2);
-						wbList.add(inst);						
+				
+				if (inst.time == 2){
+					if ((register.getStation(inst.src1) == -1 || register.getStation(inst.src1)==inst.station) 
+							&& (register.getStation(inst.src2) == -1 || register.getStation(inst.src2)==inst.station)){
+						inst.time--;
+						return;
+					} 
+					return;
+				}
+				inst.time --;
+				if (inst.time == 0){
+					float result = register.read(inst.src1) + register.read(inst.src2);
+					nextWbList.add(inst);						
 						
-						inst.result = result;
-						execList.remove(inst);
-					}
-				} 
+					inst.result = result;
+					inst.execComp = clock;
+					//execList.remove(inst);
+					delList.add(i);
+						
+				}
+				
 				break;
 			case Global.SUBD:
-				if (register.getStation(inst.src1) == -1 && register.getStation(inst.src2) == -1){
-					inst.time--;
-					if (inst.time == 0){
-						float result = register.read(inst.src1) - register.read(inst.src2);
-						wbList.add(inst);						
+				if (inst.time == 2){
+					if ((register.getStation(inst.src1) == -1 || register.getStation(inst.src1)==inst.station) 
+							&& (register.getStation(inst.src2) == -1 || register.getStation(inst.src2)==inst.station)){
+						inst.time--;
+						return;
+					} 
+					return;
+				}
+				inst.time --;
+				if (inst.time == 0){
+					float result = register.read(inst.src1) - register.read(inst.src2);
+					nextWbList.add(inst);						
 						
-						inst.result = result;
-						execList.remove(inst);
-					}
-				} 
+					inst.result = result;
+					inst.execComp = clock;
+					//execList.remove(inst);
+					delList.add(i);
+						
+				}
 				break;
 			case Global.MULD:
-				if (register.getStation(inst.src1) == -1 && register.getStation(inst.src2) == -1){
-					inst.time--;
-					if (inst.time == 0){
-						float result = register.read(inst.src1) * register.read(inst.src2);
-						wbList.add(inst);						
+				if (inst.time == 10){
+					if ((register.getStation(inst.src1) == -1 || register.getStation(inst.src1)==inst.station) 
+							&& (register.getStation(inst.src2) == -1 || register.getStation(inst.src2)==inst.station)){
+						inst.time--;
+						return;
+					} 
+					return;
+				}
+				inst.time --;
+				if (inst.time == 0){
+					float result = register.read(inst.src1) * register.read(inst.src2);
+					nextWbList.add(inst);						
 						
-						inst.result = result;
-						execList.remove(inst);
-					}
-				} 
+					inst.result = result;
+					inst.execComp = clock;
+					//execList.remove(inst);
+					delList.add(i);
+						
+				}
 				break;
 			case Global.DIVD:
-				if (register.getStation(inst.src1) == -1 && register.getStation(inst.src2) == -1){
-					inst.time--;
-					if (inst.time == 0){
-						float result = register.read(inst.src1) / register.read(inst.src2);
-						wbList.add(inst);						
+				if (inst.time == 40){
+					if ((register.getStation(inst.src1) == -1 || register.getStation(inst.src1)==inst.station) 
+							&& (register.getStation(inst.src2) == -1 || register.getStation(inst.src2)==inst.station)){
+						inst.time--;
+						return;
+					} 
+					return;
+				}
+				inst.time --;
+				if (inst.time == 0){
+					float result = register.read(inst.src1) / register.read(inst.src2);
+					nextWbList.add(inst);						
 						
-						inst.result = result;
-						execList.remove(inst);
-					}
-				} 
+					inst.result = result;
+					inst.execComp = clock;
+					//execList.remove(inst);
+					delList.add(i);
+						
+				}
 				break;
 			case Global.LD:
-				if (register.getStation(inst.des) == -1){
-					inst.time--;
-					if (inst.time == 0){
-						float result = mem.load(inst.src1);
-						wbList.add(inst);						
-						
-						inst.result = result;
-						execList.remove(inst);
+				System.out.println("-----------------time: "+inst.time);
+				if (inst.time == 2){
+					if (register.getStation(inst.des) == -1){
+						inst.time--;
+						return;
 					}
-				} 
+					return;
+				}
+				inst.time --;
+				if (inst.time == 0){
+					float result = mem.load(inst.src1);
+					nextWbList.add(inst);						
+				
+					inst.result = result;
+					inst.execComp = clock;
+					delList.add(i);
+				}
+				
 				break;
 			case Global.ST:
-				if (register.getStation(inst.src1) == -1){
-					inst.time--;
-					if (inst.time == 0){
-						float result = register.read(inst.src1);
-						wbList.add(inst);						
-						
-						inst.result = result;
-						execList.remove(inst);
+				if (inst.time == 2){
+					if (register.getStation(inst.src1) == -1){
+						inst.time--;
+						return;
 					}
-				} 
+					return;
+				}
+				inst.time --;
+				if (inst.time == 0){
+					float result = register.read(inst.src1);
+					nextWbList.add(inst);						
+					
+					inst.result = result;
+					inst.execComp = clock;
+					delList.add(i);
+				}
+				
 				break;
 
 			default:
 				break;
 			}
 		}
+		
+		for (int i = delList.size()-1; i >= 0; i--){
+			execList.remove((int)delList.get(i));
+		}
+		
+		//printAll();
+		
 	}
 	
 	public void writeback(){
+		ArrayList<Integer> delList = new ArrayList<Integer>();
+		for (int j = 0; j < wbList.size(); j++){
+			InstructionItem inst = wbList.get(j);
+			switch(inst.op){
+			case Global.ADDD:
+			case Global.SUBD:
+			case Global.MULD:
+			case Global.DIVD:
+				register.write(inst.des, inst.result);
+				rs.setIdle(Global.getID(inst.station));
+				if (register.getStation(inst.des) == inst.station)
+					register.setStation(inst.des, -1);
+				
+				for (int i = 0; i < Global.RSNum; i++){
+					if (rs.getStation1(i) == inst.station){
+						rs.setStation1(i, -1);
+						rs.setData1(i, inst.result);
+					}
+					if (rs.getStation2(i) == inst.station){
+						rs.setStation2(i, -1);
+						rs.setData2(i, inst.result);
+					}
+						
+				}
+				for (int i = 0; i < Global.LSQNum; i++){
+					if (lsqueue.getStation(i) == inst.station){
+						lsqueue.setStation(i, -1);
+					}	
+				}
+				inst.writeback = clock;
+				break;
+				
+			case Global.LD:
+				register.write(inst.des, inst.result);
+				lsqueue.setIdle(Global.getID(inst.station));
+				if (register.getStation(inst.des) == inst.station)
+					register.setStation(inst.des, -1);
+				for (int i = 0; i < Global.RSNum; i++){
+					if (rs.getStation1(i) == inst.station){
+						rs.setStation1(i, -1);
+						rs.setData1(i, inst.result);
+					}
+					if (rs.getStation2(i) == inst.station){
+						rs.setStation2(i, -1);
+						rs.setData2(i, inst.result);
+					}	
+				}
+				for (int i = 0; i < Global.LSQNum; i++){
+					if (lsqueue.getStation(i) == inst.station){
+						lsqueue.setStation(i, -1);
+					}	
+				}
+				inst.writeback = clock;
+				
+				break;
+			case Global.ST:
+				mem.store(inst.des, inst.result);
+				lsqueue.setIdle(Global.getID(inst.station));
+				inst.writeback = clock;
+				break;
+			}
+			//wbList.remove(inst);
+			delList.add(j);
+		}
+		System.out.println("wblist: "+wbList.size());
+		System.out.println("delist: "+delList.size());
+		for (int i = delList.size()-1; i >= 0; i--){
+			wbList.remove((int)delList.get(i));
+		}
 		
+		printAll();
 	}
 	
 	public int schedule(int type){
@@ -357,9 +518,12 @@ public class Tomasulo {
 	
 	public static void main(String []args){
 		Tomasulo t = new Tomasulo();
-		while (clock < 100){
+		int cnt = 0;
+		//while (instList.get(instList.size()-1).writeback == 0){
+		while (cnt++ < 60){
 			t.step();
 		}
+		//t.printAll();
 	}
 	
 
