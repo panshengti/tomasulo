@@ -43,7 +43,7 @@ class RegisterItem {
 	
 	public RegisterItem(){
 		state = Global.IDLE;
-		station = 0;
+		station = -1;
 		data = 0f;
 	}
 	
