@@ -237,25 +237,77 @@ public class Tomasulo {
 				if (register.getStation(inst.src1) == -1 && register.getStation(inst.src2) == -1){
 					inst.time--;
 					if (inst.time == 0){
-						inst.result = register.read(inst.src1) + register.read(inst.src2);
-						wbList.add(inst);
+						float result = register.read(inst.src1) + register.read(inst.src2);
+						wbList.add(inst);						
+						
+						inst.result = result;
+						execList.remove(inst);
 					}
 				} 
+				break;
 			case Global.SUBD:
+				if (register.getStation(inst.src1) == -1 && register.getStation(inst.src2) == -1){
+					inst.time--;
+					if (inst.time == 0){
+						float result = register.read(inst.src1) - register.read(inst.src2);
+						wbList.add(inst);						
+						
+						inst.result = result;
+						execList.remove(inst);
+					}
+				} 
+				break;
 			case Global.MULD:
+				if (register.getStation(inst.src1) == -1 && register.getStation(inst.src2) == -1){
+					inst.time--;
+					if (inst.time == 0){
+						float result = register.read(inst.src1) * register.read(inst.src2);
+						wbList.add(inst);						
+						
+						inst.result = result;
+						execList.remove(inst);
+					}
+				} 
+				break;
 			case Global.DIVD:
 				if (register.getStation(inst.src1) == -1 && register.getStation(inst.src2) == -1){
 					inst.time--;
+					if (inst.time == 0){
+						float result = register.read(inst.src1) / register.read(inst.src2);
+						wbList.add(inst);						
+						
+						inst.result = result;
+						execList.remove(inst);
+					}
 				} 
-				
-				
+				break;
+			case Global.LD:
+				if (register.getStation(inst.des) == -1){
+					inst.time--;
+					if (inst.time == 0){
+						float result = mem.load(inst.src1);
+						wbList.add(inst);						
+						
+						inst.result = result;
+						execList.remove(inst);
+					}
+				} 
+				break;
+			case Global.ST:
+				if (register.getStation(inst.src1) == -1){
+					inst.time--;
+					if (inst.time == 0){
+						float result = register.read(inst.src1);
+						wbList.add(inst);						
+						
+						inst.result = result;
+						execList.remove(inst);
+					}
+				} 
 				break;
 
 			default:
 				break;
-			}
-			if (inst.time == 0){
-				
 			}
 		}
 	}
