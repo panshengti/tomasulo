@@ -21,9 +21,28 @@ public class Global {
 	public static final int LDTIME = 2;
 	public static final int STTIME = 2;
 	
+	public static final int RegisterNum = 14;
+	public static final int F0 = 0;
+	public static final int F1 = 1;
+	public static final int F2 = 2;
+	public static final int F3 = 3;
+	public static final int F4 = 4;
+	public static final int F5 = 5;
+	public static final int F6 = 6;
+	public static final int F7 = 7;
+	public static final int L1 = 8;
+	public static final int L2 = 9;
+	public static final int L3 = 10;
+	public static final int S1 = 11;
+	public static final int S2 = 12;
+	public static final int S3 = 13;
+	
 	
 	public static int currenttime = 0;
 	
 	public static ArrayQueue<String> instructionList = new ArrayQueue<String>(MAXINSTR);
+	
+	public static final int IDLE = 0;
+	public static final int BUSY = 1;
 	
 }
