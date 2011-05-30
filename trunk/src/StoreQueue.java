@@ -1,6 +1,6 @@
 
 // 浮点后行写数站
-public class FloatLastWrite {
+public class StoreQueue {
 
 }
 

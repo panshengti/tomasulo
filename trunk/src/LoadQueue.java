@@ -1,6 +1,6 @@
 
 // 浮点先行读数站
-public class FloatFirstRead {
+public class LoadQueue {
 
 }
 
