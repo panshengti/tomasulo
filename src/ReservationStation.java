@@ -70,9 +70,9 @@ class ReservationStationItem {
 	float result;
 	
 	public ReservationStationItem(){
-		station1 = 0;
+		station1 = -1;
 		data1 = 0f;
-		station2 = 0;
+		station2 = -1;
 		data2 = 0f;
 		ctrl = Global.IDLE;
 		result = 0f;
