@@ -85,7 +85,12 @@ public class Global {
 	public static final int M = 4;
 	
 	
-	
+	public static int getID(int a){
+		if (a > 13) a -= 14;
+		else if (a > 7) a -= 8;
+		
+		return a;
+	}
 	public static int getInt(String s){
 		s = s.substring(1);
 		return Integer.parseInt(s);

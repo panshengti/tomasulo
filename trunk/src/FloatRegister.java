@@ -5,6 +5,9 @@ public class FloatRegister {
 	
 	public FloatRegister(){
 		register = new RegisterItem[Global.RegisterNum];
+		for (int i = 0 ; i < Global.RegisterNum; i++){
+			register[i] = new RegisterItem();
+		}
 	}
 	
 	public float read(int id){

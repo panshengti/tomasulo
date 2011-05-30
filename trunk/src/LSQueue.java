@@ -4,6 +4,9 @@ public class LSQueue {
 	
 	public LSQueue(){
 		queue = new QueueItem[Global.LSQNum];
+		for (int i = 0; i < Global.LSQNum; i++){
+			queue[i] = new QueueItem();
+		}
 	}
 		
 	public boolean isBusy(int id){
@@ -40,5 +43,9 @@ class QueueItem{
 	int state = Global.IDLE;
 	int station = -1;
 	int addr = 0;
+	float result = 0f;
 	
+	public QueueItem(){
+		
+	}
 }
