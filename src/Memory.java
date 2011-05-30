@@ -7,6 +7,9 @@ public class Memory {
 	
 	public Memory(){
 		mem = new float[4096];
+		for (int i=0; i<4096; i++){
+			mem[i] = i;
+		}
 		state = Global.IDLE;
 	}
 	
