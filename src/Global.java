@@ -7,8 +7,8 @@ import com.sun.jmx.remote.internal.ArrayQueue;
 public class Global {
 	public static final int ADDD = 1;
 	public static final int SUBD = 2;
-	public static final int MULD = 3;
-	public static final int DIVD = 4;
+	public static final int MULD = 10; // for convenience
+	public static final int DIVD = 40;
 	public static final int LD = 5;
 	public static final int ST = 6;
 	
@@ -58,4 +58,6 @@ public class Global {
 	public static final int IDLE = 0;
 	public static final int BUSY = 1;
 	
+	public static final int UNFINISHED = 0;
+	public static final int FINISHED = 1;
 }
