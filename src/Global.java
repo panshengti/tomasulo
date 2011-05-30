@@ -44,8 +44,8 @@ public class Global {
 	public static final int A1 = 0;
 	public static final int A2 = 1;
 	public static final int A3 = 2;
-	public static final int M4 = 3;
-	public static final int M5 = 4;
+	public static final int M1 = 3;
+	public static final int M2 = 4;
 	
 	// 保留站控制号
 	public static final int WAIT = 0;
