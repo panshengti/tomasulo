@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
+import javax.swing.JFileChooser;
+
 
 /*
  * TGui.java
@@ -16,6 +18,10 @@ import java.io.FileReader;
  */
 public class Gui extends javax.swing.JFrame {
 
+	/**
+	 * 
+	 */
+	//private static final long serialVersionUID = 1L;
 	Tomasulo t;
 	
 	/** Creates new form TGui */
@@ -790,7 +796,7 @@ public class Gui extends javax.swing.JFrame {
 	private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 		String regName = jTextField2.getText();
-		String valueS = jTextField2.getText();
+		String valueS = jTextField3.getText();
 		int value = Integer.parseInt(valueS);
 		int reg = -1;
 		if (regName.length() == 1){
@@ -814,7 +820,7 @@ public class Gui extends javax.swing.JFrame {
 		javax.swing.JFileChooser jf = new javax.swing.JFileChooser();
 		jf.setCurrentDirectory(new File("."));
 		int val=jf.showOpenDialog(this);
-	    if(val==jf.APPROVE_OPTION)
+	    if(val==JFileChooser.APPROVE_OPTION)
 	    {
 	    	File readin = jf.getSelectedFile();
 	    	t = new Tomasulo();
@@ -824,7 +830,7 @@ public class Gui extends javax.swing.JFrame {
 	    	BufferedReader bin = new BufferedReader(new FileReader(readin));
 	    	String str = "";
 	    	
-	    	int cnt = 0;
+	    	//int cnt = 0;
 	    	while ( !(str = bin.readLine()).equals("END")){
 	    		t.instList.add(new InstructionItem(str));
 	    	}
