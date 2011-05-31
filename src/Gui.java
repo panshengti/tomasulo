@@ -129,11 +129,11 @@ public class Gui extends javax.swing.JFrame {
 
 		jLabel8.setText("clock =");
 
-		jLabel9.setText("jLabel9");
+		jLabel9.setText("0");
 
 		jLabel10.setText("pc =");
 
-		jLabel11.setText("jLabel11");
+		jLabel11.setText("0");
 
 		org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(
 				jPanel2);
@@ -187,7 +187,7 @@ public class Gui extends javax.swing.JFrame {
 						"Data"}));
 		jScrollPane3.setViewportView(jTable3);
 
-		jTextField1.setText("Instruction");
+		jTextField1.setText("");
 		jTextField1.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				jTextField1ActionPerformed(evt);
@@ -592,7 +592,8 @@ public class Gui extends javax.swing.JFrame {
 		float data;
 		int station;
 		for (int i=0; i<Global.RegisterNum; i++){
-			if ((data = t.register.read(i)) != 0f)
+			data = t.register.read(i);
+//			if ((data = t.register.read(i)) != 0f)
 				jTable2.setValueAt(data, i, 1);
 			if (t.register.isBusy(i)){
 				jTable2.setValueAt("yes", i, 2);
@@ -602,6 +603,31 @@ public class Gui extends javax.swing.JFrame {
 			if ((station = t.register.getStation(i)) != -1){
 				jTable2.setValueAt(Global.getStationName(station), i, 3);
 			}
+		}
+	}
+	
+	public void setTable3(int addr, float value){
+		t.mem.mem[addr] = value;
+		int flag = 0;
+		for (int i = 0; i < 8; i ++){
+			if (jTable3.getValueAt(i, 0) != null){
+				if (addr == Integer.parseInt(jTable3.getValueAt(i, 0).toString())){
+					jTable3.setValueAt(addr, i, 0);
+					jTable3.setValueAt(value, i, 1);
+					flag = 1;
+				}
+			}
+		}
+		
+		if (flag == 0){
+			int i = 0;
+			for (i = 0; i < 8; i ++){
+				if (jTable3.getValueAt(i, 0) == null)
+					break;
+			}
+			if (i == 8) i = 0;
+			jTable3.setValueAt(addr, i, 0);
+			jTable3.setValueAt(value,i, 1);
 		}
 	}
 	
@@ -651,6 +677,15 @@ public class Gui extends javax.swing.JFrame {
 
 	private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
+		String addrs = jTextField4.getText();
+		int addr = Integer.parseInt(addrs);
+		String values = jTextField6.getText();
+		float value = Float.parseFloat(values);
+		
+		setTable3(addr, value);
+		
+		
+		//.setValueAt(addr, arg1, arg2)
 	}
 
 	private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {
@@ -667,10 +702,25 @@ public class Gui extends javax.swing.JFrame {
 
 	private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
+		
 	}
 
 	private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
+		
+		String ins = jTextField1.getText();
+		t.instList.add(new InstructionItem(ins));
+		jTextField1.setText("");
+		/*refresh table show*/
+		Object [][] content = new Object[t.instList.size()][4];
+		for (int i = 0; i < t.instList.size(); i++){
+			content[i][0] = t.instList.get(i).name;
+			content[i][1] = (t.instList.get(i).issue == 0) ? "" : t.instList.get(i).issue;
+			content[i][2] = (t.instList.get(i).execComp == 0) ? "" : t.instList.get(i).execComp;
+			content[i][3] = (t.instList.get(i).writeback == 0) ? "" : t.instList.get(i).writeback;
+		}
+		jTable1.setModel(new javax.swing.table.DefaultTableModel(
+				content , new String[] { "Inst Name", "Issue", "Exec Comp", "WB" }));
 	}
 
 	private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
@@ -685,7 +735,16 @@ public class Gui extends javax.swing.JFrame {
 //		}
 //		jTable1.setModel(new javax.swing.table.DefaultTableModel(
 //				content , new String[] { "Inst Name", "Issue", "Exec Comp", "WB" }));
-		
+		setTable2();
+		setTable4();
+		setTable5();
+		int addr = t.mem.address;
+		if (addr != -1){
+			setTable3(addr, t.mem.mem[addr]);
+			t.mem.address = -1;
+		}
+		jLabel9.setText(((Integer)t.clock).toString());
+		jLabel11.setText(((Integer)t.pc).toString());
 		setTable1();
 		jLabel9.setText(((Integer)t.clock).toString());
 		jLabel11.setText(((Integer)t.pc).toString());
@@ -735,15 +794,20 @@ public class Gui extends javax.swing.JFrame {
 	    	t = new Tomasulo();
 	    	BufferedReader bin = new BufferedReader(new FileReader(readin));
 	    	String str = "";
-	    	Object[][] content = new Object[20][4];
+	    	
 	    	int cnt = 0;
 	    	while (null != (str = bin.readLine())){
 	    		t.instList.add(new InstructionItem(str));
-	    		content[cnt][0] = str;
-	    		content[cnt][1] = "";
-	    		content[cnt][2] = "";
-	    		content[cnt][3] = "";
-	    		cnt++;
+	    	}
+	    	
+	    	Object[][] content = new Object[t.instList.size()][4];
+	    	
+	    	for (int i = 0; i < t.instList.size(); i++){
+	    		content[i][0] = t.instList.get(i).name;
+	    		content[i][1] = "";
+	    		content[i][2] = "";
+	    		content[i][3] = "";
+	    		
 	    	}
     		jTable1.setModel(new javax.swing.table.DefaultTableModel(
     				content , new String[] { "Inst Name", "Issue", "Exec Comp", "WB" }));
