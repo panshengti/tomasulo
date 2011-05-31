@@ -94,6 +94,15 @@ public class Tomasulo {
 		}
 	}
 	
+	public void runAll(){
+		int cnt = 0;
+		while (instList.get(instList.size()-1).writeback == 0){
+		//while (cnt++ < 80){
+			step();
+		}
+		//t.printAll();
+	}
+	
 	public void step(){
 			clock ++;
 			issue();
@@ -519,16 +528,4 @@ public class Tomasulo {
 		
 		return -1;	
 	}
-	
-	public static void main(String []args){
-		Tomasulo t = new Tomasulo();
-		int cnt = 0;
-		//while (instList.get(instList.size()-1).writeback == 0){
-		while (cnt++ < 80){
-			t.step();
-		}
-		//t.printAll();
-	}
-	
-
 }
