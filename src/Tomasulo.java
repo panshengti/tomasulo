@@ -51,23 +51,23 @@ public class Tomasulo {
 		
 		instList = new ArrayList<InstructionItem>();
 		
-		BufferedReader br;
-		try {
-			br = new BufferedReader (new FileReader("instruction.txt"));
-			String str = "";
-			while (null != (str = br.readLine())){
-				InstructionItem ii = new InstructionItem(str);
-				instList.add(ii);
-//				System.out.println(ii.name);
-			}
-		
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		BufferedReader br;
+//		try {
+//			br = new BufferedReader (new FileReader("instruction.txt"));
+//			String str = "";
+//			while (null != (str = br.readLine())){
+//				InstructionItem ii = new InstructionItem(str);
+//				instList.add(ii);
+////				System.out.println(ii.name);
+//			}
+//		
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	public void printAll(){
