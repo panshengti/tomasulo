@@ -14,14 +14,14 @@ public class Tomasulo {
 	Multiplier mul;
 	LSQueue lsqueue;
 	ArrayList<Float> stations;
-	static ArrayList<InstructionItem> instList;
+	ArrayList<InstructionItem> instList;
 	
 	InstructionItem nextToExec = null;
 	ArrayList<InstructionItem> execList;
 	ArrayList<InstructionItem> wbList;
 	ArrayList<InstructionItem> nextWbList;
 	
-	static int clock;
+	int clock;
 	int pc;
 	
 	public Tomasulo(){

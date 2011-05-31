@@ -576,6 +576,18 @@ public class Gui extends javax.swing.JFrame {
 	}// </editor-fold>
 	//GEN-END:initComponents
 	
+	public void setTable1(){
+		Object [][] content = new Object[20][4];
+		for (int i = 0; i < t.instList.size(); i++){
+			content[i][0] = t.instList.get(i).name;
+			content[i][1] = (t.instList.get(i).issue == 0) ? "" : t.instList.get(i).issue;
+			content[i][2] = (t.instList.get(i).execComp == 0) ? "" : t.instList.get(i).execComp;
+			content[i][3] = (t.instList.get(i).writeback == 0) ? "" : t.instList.get(i).writeback;
+		}
+		jTable1.setModel(new javax.swing.table.DefaultTableModel(
+				content , new String[] { "Inst Name", "Issue", "Exec Comp", "WB" }));
+	}
+	
 	public void setTable2(){
 		float data;
 		int station;
@@ -605,6 +617,9 @@ public class Gui extends javax.swing.JFrame {
 			}
 			if ((station = t.register.getStation(i)) != -1){
 				jTable4.setValueAt(Global.getStationName(station), i, 3);
+			}
+			else {
+				jTable4.setValueAt("", i, 3);
 			}
 		}
 	}
@@ -661,24 +676,47 @@ public class Gui extends javax.swing.JFrame {
 	private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 		t.step();
-		Object [][] content = new Object[20][4];
-		for (int i = 0; i < t.instList.size(); i++){
-			content[i][0] = t.instList.get(i).name;
-			content[i][1] = (t.instList.get(i).issue == 0) ? "" : t.instList.get(i).issue;
-			content[i][2] = (t.instList.get(i).execComp == 0) ? "" : t.instList.get(i).execComp;
-			content[i][3] = (t.instList.get(i).writeback == 0) ? "" : t.instList.get(i).writeback;
-		}
-		jTable1.setModel(new javax.swing.table.DefaultTableModel(
-				content , new String[] { "Inst Name", "Issue", "Exec Comp", "WB" }));
+//		Object [][] content = new Object[20][4];
+//		for (int i = 0; i < t.instList.size(); i++){
+//			content[i][0] = t.instList.get(i).name;
+//			content[i][1] = (t.instList.get(i).issue == 0) ? "" : t.instList.get(i).issue;
+//			content[i][2] = (t.instList.get(i).execComp == 0) ? "" : t.instList.get(i).execComp;
+//			content[i][3] = (t.instList.get(i).writeback == 0) ? "" : t.instList.get(i).writeback;
+//		}
+//		jTable1.setModel(new javax.swing.table.DefaultTableModel(
+//				content , new String[] { "Inst Name", "Issue", "Exec Comp", "WB" }));
 		
+		setTable1();
+		jLabel9.setText(((Integer)t.clock).toString());
+		jLabel11.setText(((Integer)t.pc).toString());
 	}
 
 	private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
+		t.runAll();
+		setTable1();
+		setTable2();
+		setTable4();
+		setTable5();
+		jLabel9.setText(((Integer)t.clock).toString());
+		jLabel11.setText(((Integer)t.pc).toString());
 	}
 
 	private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
+		String regName = jTextField2.getText();
+		String valueS = jTextField2.getText();
+		int value = Integer.parseInt(valueS);
+		int reg = -1;
+		if (regName.length() == 1){
+			reg = Integer.parseInt(regName);
+		} else {
+			reg = Integer.parseInt(regName.substring(1));
+		}
+		if ((reg>=0 && reg<Global.RegisterNum)){
+			t.register.write(reg, value);
+		}
+		jTable2.setValueAt(value, reg, 1);
 	}
 
 	private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {
