@@ -602,6 +602,17 @@ public class Gui extends javax.swing.JFrame {
 
 	private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
+		t.step();
+		Object [][] content = new Object[20][4];
+		for (int i = 0; i < t.instList.size(); i++){
+			content[i][0] = t.instList.get(i).name;
+			content[i][1] = (t.instList.get(i).issue == 0) ? "" : t.instList.get(i).issue;
+			content[i][2] = (t.instList.get(i).execComp == 0) ? "" : t.instList.get(i).execComp;
+			content[i][3] = (t.instList.get(i).writeback == 0) ? "" : t.instList.get(i).writeback;
+		}
+		jTable1.setModel(new javax.swing.table.DefaultTableModel(
+				content , new String[] { "Inst Name", "Issue", "Exec Comp", "WB" }));
+		
 	}
 
 	private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
@@ -625,6 +636,7 @@ public class Gui extends javax.swing.JFrame {
 	    if(val==jf.APPROVE_OPTION)
 	    {
 	    	File readin = jf.getSelectedFile();
+	    	t = new Tomasulo();
 	    	BufferedReader bin = new BufferedReader(new FileReader(readin));
 	    	String str = "";
 	    	Object[][] content = new Object[20][4];
