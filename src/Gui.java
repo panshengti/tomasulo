@@ -52,7 +52,6 @@ public class Gui extends javax.swing.JFrame {
 	private javax.swing.JTextField jTextField2;
 	private javax.swing.JTextField jTextField3;
 	private javax.swing.JTextField jTextField4;
-	private javax.swing.JTextField jTextField5;
 	private javax.swing.JTextField jTextField6;
 
 	/** This method is called from within the constructor to
@@ -64,7 +63,6 @@ public class Gui extends javax.swing.JFrame {
 	// <editor-fold defaultstate="collapsed" desc="Generated Code">
 	private void initComponents() {
 
-		jTextField5 = new javax.swing.JTextField();
 		jPanel1 = new javax.swing.JPanel();
 		jPanel2 = new javax.swing.JPanel();
 		jButton1 = new javax.swing.JButton();
@@ -99,8 +97,6 @@ public class Gui extends javax.swing.JFrame {
 		jTable5 = new javax.swing.JTable();
 		jLabel6 = new javax.swing.JLabel();
 		jLabel7 = new javax.swing.JLabel();
-
-		jTextField5.setText("jTextField5");
 
 		setDefaultCloseOperation(3);
 
