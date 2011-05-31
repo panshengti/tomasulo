@@ -575,6 +575,64 @@ public class Gui extends javax.swing.JFrame {
 		pack();
 	}// </editor-fold>
 	//GEN-END:initComponents
+	
+	public void setTable2(){
+		float data;
+		int station;
+		for (int i=0; i<Global.RegisterNum; i++){
+			if ((data = t.register.read(i)) != 0f)
+				jTable2.setValueAt(data, i, 1);
+			if (t.register.isBusy(i)){
+				jTable2.setValueAt("yes", i, 2);
+			} else {
+				jTable2.setValueAt("no", i, 2);
+			}
+			if ((station = t.register.getStation(i)) != -1){
+				jTable2.setValueAt(Global.getStationName(station), i, 3);
+			}
+		}
+	}
+	
+	public void setTable4(){
+		int station;
+		for (int i=0; i<Global.LSQNum; i++){
+			if (t.lsqueue.isBusy(i)){
+				jTable4.setValueAt("yes", i, 1);
+				jTable4.setValueAt(t.lsqueue.getAddr(i), i, 2);
+			} else {
+				jTable4.setValueAt("no", i, 1);
+				jTable4.setValueAt("", i, 2);
+			}
+			if ((station = t.register.getStation(i)) != -1){
+				jTable4.setValueAt(Global.getStationName(station), i, 3);
+			}
+		}
+	}
+	
+	public void setTable5(){
+		float data1, data2;
+		int station1, station2;
+		for (int i=0; i<Global.RSNum; i++){
+			if (t.rs.isBusy(i)){
+				data1 = t.rs.getData1(i);
+				data2 = t.rs.getData2(i);
+				station1 = t.rs.getStation1(i);
+				station2 = t.rs.getStation2(i);
+				jTable5.setValueAt("yes", i, 1);
+				jTable5.setValueAt(t.rs.getOp(i), i, 2);
+				if (station1 == -1){
+					jTable5.setValueAt(data1, i, 3);
+				} else {
+					jTable5.setValueAt(station1, i, 4);
+				}
+				if (station2 == -1){
+					jTable5.setValueAt(data2, i, 5);
+				} else {
+					jTable5.setValueAt(station2, i, 6);
+				}
+			}
+		}
+	}
 
 	private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:

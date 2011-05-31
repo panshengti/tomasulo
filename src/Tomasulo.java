@@ -95,7 +95,7 @@ public class Tomasulo {
 	}
 	
 	public void runAll(){
-		int cnt = 0;
+		//int cnt = 0;
 		while (instList.get(instList.size()-1).writeback == 0){
 		//while (cnt++ < 80){
 			step();
@@ -149,15 +149,18 @@ public class Tomasulo {
 			
 			register.setStation(inst.des, inst.station);
 			rs.setBusy(Global.getID(inst.station));
+			rs.setOp(Global.getID(station), op);
 			
 			int src1Station = register.getStation(inst.src1);
 			int src2Station = register.getStation(inst.src2);
 			if (src1Station == -1 || src1Station == station) {
+				register.setStation(inst.src1, -1);
 				rs.setData1(Global.getID(station), register.read(inst.src1));
 			} else {
 				rs.setStation1(Global.getID(station), src1Station);
 			}
 			if (src2Station == -1  || src2Station == station) {
+				register.setStation(inst.src2, -1);
 				rs.setData2(Global.getID(station), register.read(inst.src2));
 			} else {
 				rs.setStation2(Global.getID(station), src2Station);
@@ -184,15 +187,18 @@ public class Tomasulo {
 			
 			register.setStation(inst.des, inst.station);
 			rs.setBusy(Global.getID(inst.station));
+			rs.setOp(Global.getID(station), op);
 			
 			int src1Station = register.getStation(inst.src1);
 			int src2Station = register.getStation(inst.src2);
 			if (src1Station == -1 || src1Station == station) {
+				register.setStation(inst.src1, -1);
 				rs.setData1(Global.getID(station), register.read(inst.src1));
 			} else {
 				rs.setStation1(Global.getID(station), src1Station);
 			}
 			if (src2Station == -1  || src2Station == station) {
+				register.setStation(inst.src2, -1);
 				rs.setData2(Global.getID(station), register.read(inst.src2));
 			} else {
 				rs.setStation2(Global.getID(station), src2Station);
@@ -448,7 +454,7 @@ public class Tomasulo {
 				
 			case Global.LD:
 				lsqueue.setIdle(Global.getID(inst.station));
-				lsqueue.setAddr(Global.getID(inst.station), 0);
+				lsqueue.setAddr(Global.getID(inst.station), -1);
 				if (register.getStation(inst.des) == inst.station){
 					register.setStation(inst.des, -1);
 					register.write(inst.des, inst.result);
@@ -472,7 +478,7 @@ public class Tomasulo {
 				
 				break;
 			case Global.ST:
-				lsqueue.setAddr(Global.getID(inst.station), 0);
+				lsqueue.setAddr(Global.getID(inst.station), -1);
 				mem.store(inst.des, inst.result);
 				lsqueue.setIdle(Global.getID(inst.station));
 				inst.writeback = clock;
