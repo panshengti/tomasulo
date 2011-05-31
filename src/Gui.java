@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import javax.swing.JFileChooser;
 
 /*
  * TGui.java
@@ -264,7 +263,7 @@ public class Gui extends javax.swing.JFrame {
 				new Object[][] { 
 						{ "Add1", null, null, null, null, null, null }, { "Add2", null, null, null, null, null, null },{ "Add3", null, null, null, null, null, null },{ "Mul1", null, null, null, null, null, null },{ "Mul2", null, null, null, null, null, null }
 						}, new String[] { "",
-						"Busy", "Op", "Data1", "Station1", "Data2", "Station1",}));
+						"Busy", "Op", "Data1", "Station1", "Data2", "Station2",}));
 		jScrollPane5.setViewportView(jTable5);
 
 		jLabel6.setText("Load/Store Queue");
@@ -577,7 +576,7 @@ public class Gui extends javax.swing.JFrame {
 	//GEN-END:initComponents
 	
 	public void setTable1(){
-		Object [][] content = new Object[20][4];
+		Object [][] content = new Object[t.instList.size()][4];
 		for (int i = 0; i < t.instList.size(); i++){
 			content[i][0] = t.instList.get(i).name;
 			content[i][1] = (t.instList.get(i).issue == 0) ? "" : t.instList.get(i).issue;
@@ -605,7 +604,7 @@ public class Gui extends javax.swing.JFrame {
 			}
 		}
 	}
-	
+
 	public void setTable3(int addr, float value){
 		t.mem.mem[addr] = value;
 		int flag = 0;
@@ -650,6 +649,27 @@ public class Gui extends javax.swing.JFrame {
 		}
 	}
 	
+	public void clearAllTable(){
+		
+		for (int k = 0; k < 8; k++){
+			for (int j = 1; j < 4; j++){
+				jTable2.setValueAt("", k, j);
+			}
+		}
+		
+		for (int k = 0; k < 6; k++){
+			for (int j = 1; j < 3; j++){
+				jTable4.setValueAt("", k, j);
+			}
+		}
+		
+		for (int k = 0; k < 5; k++){
+			for (int j = 1; j < 6; j++){
+				jTable5.setValueAt("", k, j);
+			}
+		}
+	}
+	
 	public void setTable5(){
 		float data1, data2;
 		int station1, station2;
@@ -671,6 +691,12 @@ public class Gui extends javax.swing.JFrame {
 				} else {
 					jTable5.setValueAt(station2, i, 6);
 				}
+			}
+			else{
+				for (int k = 2; k < 7; k++){
+					jTable5.setValueAt("", i, k);
+				}
+				jTable5.setValueAt("no", i, 1);
 			}
 		}
 	}
@@ -792,11 +818,14 @@ public class Gui extends javax.swing.JFrame {
 	    {
 	    	File readin = jf.getSelectedFile();
 	    	t = new Tomasulo();
+	    	clearAllTable();
+	    	jLabel9.setText("0");
+	    	jLabel11.setText("0");
 	    	BufferedReader bin = new BufferedReader(new FileReader(readin));
 	    	String str = "";
 	    	
 	    	int cnt = 0;
-	    	while (null != (str = bin.readLine())){
+	    	while ( !(str = bin.readLine()).equals("END")){
 	    		t.instList.add(new InstructionItem(str));
 	    	}
 	    	

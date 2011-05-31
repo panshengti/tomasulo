@@ -1,7 +1,3 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -58,7 +54,7 @@ public class Tomasulo {
 //			while (null != (str = br.readLine())){
 //				InstructionItem ii = new InstructionItem(str);
 //				instList.add(ii);
-////				System.out.println(ii.name);
+////				//System.out.println(ii.name);
 //			}
 //		
 //		} catch (FileNotFoundException e) {
@@ -71,34 +67,43 @@ public class Tomasulo {
 	}
 	
 	public void printAll(){
-		System.out.println("-----------clock = "+clock+"--------------");
-		System.out.println("F1: "+ register.read(1));
-		System.out.println("F2: "+ register.read(2));
-		System.out.println("F3: "+ register.read(3));
+		//System.out.println("-----------clock = "+clock+"--------------");
+		//System.out.println("F1: "+ register.read(1));
+		//System.out.println("F2: "+ register.read(2));
+		//System.out.println("F3: "+ register.read(3));
 		for (int i =0 ; i < instList.size();i ++){
-			System.out.println(instList.get(i).name);
-			System.out.println("issue :"+instList.get(i).issue);
-			System.out.println("exec :"+instList.get(i).execComp);
-			System.out.println("wb :"+instList.get(i).writeback);
+			//System.out.println(instList.get(i).name);
+			//System.out.println("issue :"+instList.get(i).issue);
+			//System.out.println("exec :"+instList.get(i).execComp);
+			//System.out.println("wb :"+instList.get(i).writeback);
 		}
 		for (int i=0; i<rs.rs.length; i++){
-			System.out.println("rs :"+i);
-			System.out.println("data1 : "+rs.getData1(i));
-			System.out.println("station1 : "+rs.getStation1(i));
-			System.out.println("data2 : "+rs.getData2(i));
-			System.out.println("station2 : "+rs.getStation2(i));
+			//System.out.println("rs :"+i);
+			//System.out.println("data1 : "+rs.getData1(i));
+			//System.out.println("station1 : "+rs.getStation1(i));
+			//System.out.println("data2 : "+rs.getData2(i));
+			//System.out.println("station2 : "+rs.getStation2(i));
 		}
 		for (int i=0; i<register.register.length; i++){
-			System.out.println("REG :"+i);
-			System.out.println("REG: station : "+register.getStation(i));
+			//System.out.println("REG :"+i);
+			//System.out.println("REG: station : "+register.getStation(i));
 		}
 	}
 	
 	public void runAll(){
 		//int cnt = 0;
-		while (instList.get(instList.size()-1).writeback == 0){
-		//while (cnt++ < 80){
+		boolean end = false;
+		while (!end){
+			end = true;
 			step();
+			for (int i = 0; i < instList.size(); i++){
+				if (instList.get(i).writeback == 0){
+					end = false;
+					break;
+					
+				}
+					
+			}
 		}
 		//t.printAll();
 	}
@@ -106,7 +111,7 @@ public class Tomasulo {
 	public void step(){
 			clock ++;
 			issue();
-			System.out.println("execlist.size():"+execList.size());
+			//System.out.println("execlist.size():"+execList.size());
 			execute();
 			writeback();
 		if (nextToExec != null){
@@ -127,7 +132,7 @@ public class Tomasulo {
 			return;
 		}
 		// decoder
-		System.out.println("pc = "+pc);
+		////System.out.println("pc = "+pc);
 		InstructionItem inst = instList.get(pc);
 		nextToExec = null;
 		String s[] = inst.name.split("\\s+");
@@ -266,7 +271,7 @@ public class Tomasulo {
 			
 			
 		} else {
-			System.out.println("Error Instruction!");
+			////System.out.println("Error Instruction!");
 		}
 		
 		nextToExec = inst;
@@ -366,7 +371,7 @@ public class Tomasulo {
 				}
 				break;
 			case Global.LD:
-				System.out.println("-----------------time: "+inst.time);
+				////System.out.println("-----------------time: "+inst.time);
 				if (inst.time == 2){
 					inst.time--;						
 					
@@ -487,8 +492,8 @@ public class Tomasulo {
 			//wbList.remove(inst);
 			delList.add(j);
 		}
-		System.out.println("wblist: "+wbList.size());
-		System.out.println("delist: "+delList.size());
+		////System.out.println("wblist: "+wbList.size());
+		////System.out.println("delist: "+delList.size());
 		for (int i = delList.size()-1; i >= 0; i--){
 			wbList.remove((int)delList.get(i));
 		}
