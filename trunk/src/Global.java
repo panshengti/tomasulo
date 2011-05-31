@@ -95,4 +95,48 @@ public class Global {
 		s = s.substring(1);
 		return Integer.parseInt(s);
 	}
+	public static String getStationName(int i){
+		switch (i){
+		case 0:
+			return "F0";
+		case 1:
+			return "F1";
+		case 2:
+			return "F2";
+		case 3:
+			return "F3";
+		case 4:
+			return "F4";
+		case 5:
+			return "F5";
+		case 6:
+			return "F6";
+		case 7:
+			return "F7";
+		case 8:
+			return "Load1";
+		case 9:
+			return "Load2";
+		case 10:
+			return "Load3";
+		case 11:
+			return "Store1";
+		case 12:
+			return "Store2";
+		case 13:
+			return "Store3";
+		case 14:
+			return "Add1";
+		case 15:
+			return "Add2";
+		case 16:
+			return "Add3";
+		case 17:
+			return "Mul1";
+		case 18:
+			return "Mul2";
+		}
+		
+		return null;
+	}
 }

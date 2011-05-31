@@ -42,7 +42,7 @@ public class LSQueue {
 class QueueItem{
 	int state = Global.IDLE;
 	int station = -1;
-	int addr = 0;
+	int addr = -1;
 	float result = 0f;
 	
 	public QueueItem(){

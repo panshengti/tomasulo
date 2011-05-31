@@ -10,6 +10,14 @@ public class ReservationStation {
 		}
 	}
 	
+	public String getOp(int i){
+		return rs[i].op;
+	}
+	
+	public void setOp(int id, String op){
+		rs[id].op = op;
+	}
+	
 	public void setResult(int id, float f){
 		rs[id].result = f;
 	}
@@ -71,6 +79,7 @@ class ReservationStationItem {
 	float data2;
 	int ctrl;
 	float result;
+	String op;
 	
 	public ReservationStationItem(){
 		station1 = -1;
