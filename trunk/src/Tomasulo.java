@@ -83,7 +83,9 @@ public class Tomasulo {
 		}
 		for (int i=0; i<rs.rs.length; i++){
 			System.out.println("rs :"+i);
+			System.out.println("data1 : "+rs.getData1(i));
 			System.out.println("station1 : "+rs.getStation1(i));
+			System.out.println("data2 : "+rs.getData2(i));
 			System.out.println("station2 : "+rs.getStation2(i));
 		}
 		for (int i=0; i<register.register.length; i++){
@@ -136,6 +138,22 @@ public class Tomasulo {
 			int station = schedule(Global.A);
 			inst.station = station;
 			
+			register.setStation(inst.des, inst.station);
+			rs.setBusy(Global.getID(inst.station));
+			
+			int src1Station = register.getStation(inst.src1);
+			int src2Station = register.getStation(inst.src2);
+			if (src1Station == -1 || src1Station == station) {
+				rs.setData1(Global.getID(station), register.read(inst.src1));
+			} else {
+				rs.setStation1(Global.getID(station), src1Station);
+			}
+			if (src2Station == -1  || src2Station == station) {
+				rs.setData2(Global.getID(station), register.read(inst.src2));
+			} else {
+				rs.setStation2(Global.getID(station), src2Station);
+			}
+			
 			pc ++;
 			
 		} else if (op.equals("MULD") || op.equals("DIVD")){
@@ -154,6 +172,22 @@ public class Tomasulo {
 				return;
 			}		
 			inst.station = station;
+			
+			register.setStation(inst.des, inst.station);
+			rs.setBusy(Global.getID(inst.station));
+			
+			int src1Station = register.getStation(inst.src1);
+			int src2Station = register.getStation(inst.src2);
+			if (src1Station == -1 || src1Station == station) {
+				rs.setData1(Global.getID(station), register.read(inst.src1));
+			} else {
+				rs.setStation1(Global.getID(station), src1Station);
+			}
+			if (src2Station == -1  || src2Station == station) {
+				rs.setData2(Global.getID(station), register.read(inst.src2));
+			} else {
+				rs.setStation2(Global.getID(station), src2Station);
+			}
 			
 			pc++;
 				
@@ -178,6 +212,11 @@ public class Tomasulo {
 			
 			inst.station = station;
 			
+			register.setStation(inst.des, station);
+			
+			lsqueue.setBusy(Global.getID(inst.station));
+			lsqueue.setAddr(Global.getID(inst.station), inst.des);
+			
 			pc ++;
 			
 		} else if (op.equals("ST")) {
@@ -200,6 +239,13 @@ public class Tomasulo {
 			}
 			
 			inst.station = station;
+			
+			// waiting src's station if any
+			if (register.getStation(inst.src1) != -1){
+				lsqueue.setStation(Global.getID(inst.station), register.getStation(inst.src1));
+			}
+			lsqueue.setBusy(Global.getID(inst.station));
+			lsqueue.setAddr(Global.getID(inst.station), inst.des);
 			
 			pc ++;
 			
@@ -225,30 +271,15 @@ public class Tomasulo {
 			case Global.ADDD:
 				
 				if (inst.time == 2){
-					if ((register.getStation(inst.src1) == -1 || register.getStation(inst.src1)==inst.station) 
-							&& (register.getStation(inst.src2) == -1 || register.getStation(inst.src2)==inst.station)){
+					if ((rs.getStation1(Global.getID(inst.station)) == -1 || rs.getStation1(Global.getID(inst.station)) == inst.station) 
+							&& (rs.getStation2(Global.getID(inst.station)) == -1 || rs.getStation2(Global.getID(inst.station)) == inst.station)){
 						inst.time--;
 					} 
-					register.setStation(inst.des, inst.station);
-					rs.setBusy(Global.getID(inst.station));
-					
-					int src1Station = register.getStation(inst.src1);
-					int src2Station = register.getStation(inst.src2);
-					if (src1Station == -1) {
-						rs.setData1(inst.src1, register.read(inst.src1));
-					} else {
-						rs.setStation1(inst.src1, src1Station);
-					}
-					if (src2Station == -1) {
-						rs.setData1(inst.src2, register.read(inst.src2));
-					} else {
-						rs.setStation1(inst.src2, src2Station);
-					}
-					return;
+					break;
 				}
 				inst.time --;
 				if (inst.time == 0){
-					float result = register.read(inst.src1) + register.read(inst.src2);
+					float result = rs.getData1(Global.getID(inst.station)) + rs.getData2(Global.getID(inst.station));
 					nextWbList.add(inst);						
 						
 					inst.result = result;
@@ -261,31 +292,15 @@ public class Tomasulo {
 				break;
 			case Global.SUBD:
 				if (inst.time == 2){
-					if ((register.getStation(inst.src1) == -1 || register.getStation(inst.src1)==inst.station) 
-							&& (register.getStation(inst.src2) == -1 || register.getStation(inst.src2)==inst.station)){
+					if ((rs.getStation1(Global.getID(inst.station)) == -1 || rs.getStation1(Global.getID(inst.station)) == inst.station) 
+							&& (rs.getStation2(Global.getID(inst.station)) == -1 || rs.getStation2(Global.getID(inst.station)) == inst.station)){
 						inst.time--;
-						
 					} 
-					register.setStation(inst.des, inst.station);
-					rs.setBusy(Global.getID(inst.station));
-					
-					int src1Station = register.getStation(inst.src1);
-					int src2Station = register.getStation(inst.src2);
-					if (src1Station == -1) {
-						rs.setData1(inst.src1, register.read(inst.src1));
-					} else {
-						rs.setStation1(inst.src1, src1Station);
-					}
-					if (src2Station == -1) {
-						rs.setData1(inst.src2, register.read(inst.src2));
-					} else {
-						rs.setStation1(inst.src2, src2Station);
-					}
-					return;
+					break;
 				}
 				inst.time --;
 				if (inst.time == 0){
-					float result = register.read(inst.src1) - register.read(inst.src2);
+					float result = rs.getData1(Global.getID(inst.station)) - rs.getData2(Global.getID(inst.station));
 					nextWbList.add(inst);						
 						
 					inst.result = result;
@@ -297,31 +312,15 @@ public class Tomasulo {
 				break;
 			case Global.MULD:
 				if (inst.time == 10){
-					if ((register.getStation(inst.src1) == -1 || register.getStation(inst.src1)==inst.station) 
-							&& (register.getStation(inst.src2) == -1 || register.getStation(inst.src2)==inst.station)){
+					if ((rs.getStation1(Global.getID(inst.station)) == -1 || rs.getStation1(Global.getID(inst.station)) == inst.station) 
+							&& (rs.getStation2(Global.getID(inst.station)) == -1 || rs.getStation2(Global.getID(inst.station)) == inst.station)){
 						inst.time--;
-						
 					} 
-					register.setStation(inst.des, inst.station);
-					rs.setBusy(Global.getID(inst.station));
-					
-					int src1Station = register.getStation(inst.src1);
-					int src2Station = register.getStation(inst.src2);
-					if (src1Station == -1) {
-						rs.setData1(inst.src1, register.read(inst.src1));
-					} else {
-						rs.setStation1(inst.src1, src1Station);
-					}
-					if (src2Station == -1) {
-						rs.setData1(inst.src2, register.read(inst.src2));
-					} else {
-						rs.setStation1(inst.src2, src2Station);
-					}
-					return;
+					break;
 				}
 				inst.time --;
 				if (inst.time == 0){
-					float result = register.read(inst.src1) * register.read(inst.src2);
+					float result = rs.getData1(Global.getID(inst.station)) * rs.getData2(Global.getID(inst.station));
 					nextWbList.add(inst);						
 						
 					inst.result = result;
@@ -333,31 +332,15 @@ public class Tomasulo {
 				break;
 			case Global.DIVD:
 				if (inst.time == 40){
-					if ((register.getStation(inst.src1) == -1 || register.getStation(inst.src1)==inst.station) 
-							&& (register.getStation(inst.src2) == -1 || register.getStation(inst.src2)==inst.station)){
+					if ((rs.getStation1(Global.getID(inst.station)) == -1 || rs.getStation1(Global.getID(inst.station)) == inst.station) 
+							&& (rs.getStation2(Global.getID(inst.station)) == -1 || rs.getStation2(Global.getID(inst.station)) == inst.station)){
 						inst.time--;
-						
 					} 
-					register.setStation(inst.des, inst.station);
-					rs.setBusy(Global.getID(inst.station));
-					
-					int src1Station = register.getStation(inst.src1);
-					int src2Station = register.getStation(inst.src2);
-					if (src1Station == -1) {
-						rs.setData1(inst.src1, register.read(inst.src1));
-					} else {
-						rs.setStation1(inst.src1, src1Station);
-					}
-					if (src2Station == -1) {
-						rs.setData1(inst.src2, register.read(inst.src2));
-					} else {
-						rs.setStation1(inst.src2, src2Station);
-					}
-					return;
+					break;
 				}
 				inst.time --;
 				if (inst.time == 0){
-					float result = register.read(inst.src1) / register.read(inst.src2);
+					float result = rs.getData1(Global.getID(inst.station)) / rs.getData2(Global.getID(inst.station));
 					nextWbList.add(inst);						
 						
 					inst.result = result;
@@ -370,15 +353,9 @@ public class Tomasulo {
 			case Global.LD:
 				System.out.println("-----------------time: "+inst.time);
 				if (inst.time == 2){
-					if (register.getStation(inst.des) == -1){
-						inst.time--;
-						
-					}
-					register.setStation(inst.des, inst.station);
+					inst.time--;						
 					
-					lsqueue.setBusy(Global.getID(inst.station));
-					lsqueue.setAddr(Global.getID(inst.station), inst.des);
-					return;
+					break;
 				}
 				inst.time --;
 				if (inst.time == 0){
@@ -393,16 +370,11 @@ public class Tomasulo {
 				break;
 			case Global.ST:
 				if (inst.time == 2){
-					if (register.getStation(inst.src1) == -1){
+					if (lsqueue.getStation(Global.getID(inst.station)) == -1){
 						inst.time--;
 					}
-					// waiting src's station if any
-					if (register.getStation(inst.src1) != -1){
-						lsqueue.setStation(inst.des, register.getStation(inst.src1));
-					}
-					lsqueue.setBusy(Global.getID(inst.station));
-					lsqueue.setAddr(Global.getID(inst.station), inst.des);
-					return;
+					
+					break;
 				}
 				inst.time --;
 				if (inst.time == 0){
@@ -438,10 +410,13 @@ public class Tomasulo {
 			case Global.SUBD:
 			case Global.MULD:
 			case Global.DIVD:
-				register.write(inst.des, inst.result);
 				rs.setIdle(Global.getID(inst.station));
-				if (register.getStation(inst.des) == inst.station)
+				rs.setData1(Global.getID(inst.station), 0);
+				rs.setData2(Global.getID(inst.station), 0);
+				if (register.getStation(inst.des) == inst.station){
 					register.setStation(inst.des, -1);
+					register.write(inst.des, inst.result);
+				}
 				
 				for (int i = 0; i < Global.RSNum; i++){
 					if (rs.getStation1(i) == inst.station){
@@ -463,10 +438,12 @@ public class Tomasulo {
 				break;
 				
 			case Global.LD:
-				register.write(inst.des, inst.result);
 				lsqueue.setIdle(Global.getID(inst.station));
-				if (register.getStation(inst.des) == inst.station)
+				lsqueue.setAddr(Global.getID(inst.station), 0);
+				if (register.getStation(inst.des) == inst.station){
 					register.setStation(inst.des, -1);
+					register.write(inst.des, inst.result);
+				}
 				for (int i = 0; i < Global.RSNum; i++){
 					if (rs.getStation1(i) == inst.station){
 						rs.setStation1(i, -1);
@@ -486,6 +463,7 @@ public class Tomasulo {
 				
 				break;
 			case Global.ST:
+				lsqueue.setAddr(Global.getID(inst.station), 0);
 				mem.store(inst.des, inst.result);
 				lsqueue.setIdle(Global.getID(inst.station));
 				inst.writeback = clock;
@@ -546,7 +524,7 @@ public class Tomasulo {
 		Tomasulo t = new Tomasulo();
 		int cnt = 0;
 		//while (instList.get(instList.size()-1).writeback == 0){
-		while (cnt++ < 60){
+		while (cnt++ < 80){
 			t.step();
 		}
 		//t.printAll();
