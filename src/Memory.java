@@ -4,6 +4,7 @@ public class Memory {
 	
 	float mem[];
 	int state;
+	int address;
 	
 	public Memory(){
 		mem = new float[4096];
@@ -11,6 +12,7 @@ public class Memory {
 			mem[i] = i;
 		}
 		state = Global.IDLE;
+		address = -1;
 	}
 	
 	public float load(int addr){
@@ -19,6 +21,7 @@ public class Memory {
 	
 	public void store(int addr, float data){
 		mem[addr] = data;
+		address = addr;
 	}
 	
 	public void setBusy(){
