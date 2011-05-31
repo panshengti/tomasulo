@@ -1,3 +1,9 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
+import javax.swing.JFileChooser;
+
 /*
  * TGui.java
  *
@@ -612,6 +618,34 @@ public class Gui extends javax.swing.JFrame {
 
 	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
+		try{
+		javax.swing.JFileChooser jf = new javax.swing.JFileChooser();
+		jf.setCurrentDirectory(new File("."));
+		int val=jf.showOpenDialog(this);
+	    if(val==jf.APPROVE_OPTION)
+	    {
+	    	File readin = jf.getSelectedFile();
+	    	BufferedReader bin = new BufferedReader(new FileReader(readin));
+	    	String str = "";
+	    	Object[][] content = new Object[20][4];
+	    	int cnt = 0;
+	    	while (null != (str = bin.readLine())){
+	    		t.instList.add(new InstructionItem(str));
+	    		content[cnt][0] = str;
+	    		content[cnt][1] = "";
+	    		content[cnt][2] = "";
+	    		content[cnt][3] = "";
+	    		cnt++;
+	    	}
+    		jTable1.setModel(new javax.swing.table.DefaultTableModel(
+    				content , new String[] { "Inst Name", "Issue", "Exec Comp", "WB" }));
+	    }
+	    else
+	    {
+//	      tf.setText("你取消了");
+//	      tf2.setText("");
+	    }
+		}catch(Exception e){e.printStackTrace();}
 	}
 
 	/**
