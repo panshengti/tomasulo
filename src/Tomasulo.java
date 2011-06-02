@@ -6,8 +6,6 @@ public class Tomasulo {
 	FloatRegister register;
 	ReservationStation rs;
 	Memory mem;
-	Adder adder;
-	Multiplier mul;
 	LSQueue lsqueue;
 	ArrayList<Float> stations;
 	ArrayList<InstructionItem> instList;
@@ -24,8 +22,6 @@ public class Tomasulo {
 		register = new FloatRegister();
 		rs = new ReservationStation();
 		mem = new Memory();
-		adder = new Adder();
-		mul = new Multiplier();
 		stations = new ArrayList<Float>();
 		lsqueue = new LSQueue();
 		execList = new ArrayList<InstructionItem>();	
